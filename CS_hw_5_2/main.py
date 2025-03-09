@@ -3,6 +3,7 @@ import re
 from collections import defaultdict
 from html.parser import HTMLParser
 import matplotlib.pyplot as plt
+from concurrent.futures import ThreadPoolExecutor
 
 
 class MyHTMLParser(HTMLParser):
@@ -70,9 +71,17 @@ def visualize_top_words(word_counts: dict) -> None:
     plt.show()
 
 
-if __name__ == "__main__":
-    url = input("Enter any URL: ")
+def fetch_and_process_url(url: str) -> dict:
     text = fetch_text(url)
-    print(text[:100])
-    result = map_reduce(text)
+    return map_reduce(text)
+
+
+def main():
+    url = input("Введите URL: ")
+    with ThreadPoolExecutor() as executor:
+        result = list(executor.map(fetch_and_process_url, [url]))[0]
     visualize_top_words(result)
+
+
+if __name__ == "__main__":
+    main()
